@@ -1,0 +1,10 @@
+[project]
+name = "automated-documentation-sync"
+version = "0.1.0"
+description = "A lightweight repository documentation sync tool."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
