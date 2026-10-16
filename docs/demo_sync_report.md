@@ -1,10 +1,9 @@
 # Documentation Sync Report
 
 - Repository: `demo_repo`
-- Generated: `2026-09-03 02:47:21 UTC`
 - Files analyzed: `4`
-- Total lines: `30`
-- Total bytes: `675`
+- Total lines: `26`
+- Total bytes: `649`
 
 ## Overview
 
@@ -12,10 +11,10 @@ This report is a lightweight snapshot of the repository to support documentation
 
 ## File inventory
 
-- `docs/README.md` — .md (4 lines, 88 bytes)
-- `README.md` — .md (8 lines, 213 bytes)
-- `src/service.py` — .py (8 lines, 173 bytes)
-- `tests/test_service.py` — .py (10 lines, 201 bytes)
+- `README.md` — .md (7 lines, 206 bytes)
+- `docs/README.md` — .md (3 lines, 85 bytes)
+- `src/service.py` — .py (7 lines, 166 bytes)
+- `tests/test_service.py` — .py (9 lines, 192 bytes)
 
 ## File-type summary
 

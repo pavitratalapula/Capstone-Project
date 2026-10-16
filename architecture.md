@@ -1,7 +1,17 @@
-# Architecture: Automated Documentation Sync
+# Architecture: Repository Scope Index
+
+The primary Expense Tracker architecture is in `docs/design.md`. The legacy
+Documentation Sync architecture is retained below as a separate scope.
+
+---
+
+# Legacy Architecture: Automated Documentation Sync
 
 ## Overview
 The solution is a lightweight CLI tool that scans a repository, extracts metadata from source and documentation files, and emits a Markdown documentation report. It is intentionally dependency-light so it can run in CI, dev desktops, or local authoring workflows without additional infrastructure.
+
+The Expense Tracker is a separate, local-ledger scope documented in
+`docs/design.md`; it is not part of this repository-scanning data flow.
 
 ## High-level components
 
@@ -9,7 +19,7 @@ The solution is a lightweight CLI tool that scans a repository, extracts metadat
 Responsible for traversing the project tree and filtering files that matter for documentation generation. It skips hidden directories such as `.git`, virtual environments, and build caches.
 
 ### 2. File analyzer
-Responsible for reading file attributes and deriving simple metadata, including extension, file size, line count, and whether the file appears to be an entry point or a test file.
+Responsible for reading supported text files and deriving relative path, extension, byte size, and line count.
 
 ### 3. Documentation gap detector
 Responsible for checking whether common documentation anchors such as `README.md` or `docs/` exist and highlighting missing assets in the output.
@@ -32,7 +42,7 @@ Responsible for argument parsing, repository validation, output writing, and use
 - Python 3.11+ standard library only
 - `pathlib` for filesystem traversal
 - `argparse` for CLI usage
-- `dataclasses` and `datetime` for structured summaries
+- `dataclasses` for structured summaries
 - Markdown output for easy review in pull requests and documentation
 
 ## Key design decisions
@@ -42,6 +52,15 @@ Responsible for argument parsing, repository validation, output writing, and use
 - Structure the report as a summary plus inventory to keep it readable while still actionable.
 
 ## Risks and mitigations
-- Large repositories may generate lengthy reports. Mitigation: the report summarizes counts and top-level directory structure instead of dumping every raw file.
+- Large repositories may generate lengthy reports because the file inventory is comprehensive for supported extensions. Hidden and common generated directories are pruned during traversal.
 - Some repos include generated build artifacts. Mitigation: skip hidden and common cache directories.
 - Documentation gaps may be false positives. Mitigation: present them as suggestions rather than strict blockers.
+- Files that cannot be decoded as UTF-8 or read due to filesystem errors stop report generation with a clear CLI error; they are not silently omitted.
+- The generated report omits volatile timestamps and excludes its own output path from the inventory so repeated runs over unchanged inputs are reproducible.
+
+## Related design boundary
+
+The Expense Tracker uses its own JSON persistence, Decimal model, and CLI
+contract. Its dependency-ordered implementation and validation plan are in
+`docs/implementation-plan.md`; those decisions must not be inferred from the
+documentation-sync scanner.

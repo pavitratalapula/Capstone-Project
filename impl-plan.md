@@ -1,4 +1,11 @@
-# Implementation Plan: Automated Documentation Sync
+# Legacy Implementation Plan: Automated Documentation Sync
+
+The active Expense Tracker plan is `docs/implementation-plan.md`. This root
+plan applies only to the retained Documentation Sync utility.
+
+The tasks below describe the original implementation sequence. The utility is
+implemented; its current behavior and verification are recorded after the
+historical plan.
 
 ## Dependency-ordered work breakdown
 
@@ -54,3 +61,29 @@ Blocked by: verification
 
 ## Dependencies summary
 The implementation is linear: the analyzer and gap detector must be complete before the report renderer can produce a stable final document, and CLI validation must run after the rendering logic is correct.
+
+## Current implementation and verification
+
+The existing utility in `src/documentation_sync.py` now prunes hidden and
+generated directories, excludes its own selected output from inventory, uses
+accurate line counts, detects test files by path/name rather than incidental
+substring, and produces deterministic Markdown. It reports invalid UTF-8 and
+filesystem failures clearly and refuses to overwrite an unrelated existing
+file inside the scanned repository.
+
+Current validation:
+
+```text
+C:/Python314/python.exe -m pytest tests/test_documentation_sync.py -q
+11 passed in 0.10s
+
+C:/Python314/python.exe -m pytest -q
+56 passed in 0.33s
+
+C:/Python314/python.exe -m compileall -q src tests
+exit code 0
+```
+
+A temporary fixture containing 300 small Python files completed the full CLI
+run in 0.241 seconds on this machine. This single measurement includes Python
+startup and is not a guarantee for other machines or repository shapes.

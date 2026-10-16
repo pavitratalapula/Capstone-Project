@@ -3,6 +3,10 @@
 ## Review summary
 The proposed architecture is suitable for the problem statement and the expected capstone scope. It is intentionally small, reviewable, and easy to automate in CI without operational dependencies.
 
+The separate Expense Tracker request has been reviewed as a local filesystem
+ledger and is specified in `docs/design.md`. It does not alter the approved
+documentation-sync architecture.
+
 ## Findings
 
 ### 1. Strengths
@@ -24,3 +28,10 @@ The proposed architecture is suitable for the problem statement and the expected
 
 ## Final design approval
 Approved for implementation with the above mitigations. The design is intentionally simple and aligns with the project requirements for a dependency-safe, testable documentation sync tool.
+
+The Expense Tracker design decisions in `docs/design.md` are now implemented
+and tested separately from this historical Documentation Sync review. Its
+canonical categories, Decimal-as-string JSON, missing-file-as-empty behavior,
+explicit malformed-data errors, ID migration, and atomic-ish replacement are
+documented there. This record does not claim that the original review changed
+application code or tests.
