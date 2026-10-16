@@ -230,22 +230,49 @@ def test_edit_legacy_expense_by_migrated_id_preserves_all_records(tmp_path):
     assert migrated[1]["description"] == "Train"
 
 
-def test_edit_expense_supports_partial_and_multiple_field_updates(tmp_path):
+@pytest.mark.parametrize(
+    ("edit_kwargs", "expected_description", "expected_amount", "expected_category"),
+    [
+        ({"description": "Dinner"}, "Dinner", Decimal("10"), "Food"),
+        ({"amount": "12.50"}, "Lunch", Decimal("12.50"), "Food"),
+        ({"category": " travel "}, "Lunch", Decimal("10"), "Travel"),
+    ],
+)
+def test_edit_expense_updates_one_field_and_preserves_other_expenses(
+    tmp_path, edit_kwargs, expected_description, expected_amount, expected_category
+):
     path = tmp_path / "expenses.json"
     tracker = ExpenseTracker(path)
     first = tracker.add_expense("Lunch", "10", "Food")
-    tracker.add_expense("Train", "5", "Shopping")
+    second = tracker.add_expense("Train", "5", "Shopping")
 
-    edited = tracker.edit_expense(first.id, description="Dinner")
+    edited = tracker.edit_expense(first.id, **edit_kwargs)
     assert edited.id == first.id
-    assert edited.description == "Dinner"
-    assert edited.amount == Decimal("10")
-    assert edited.category == "Food"
-    assert [expense.id for expense in tracker.list_expenses()] == [first.id, tracker.list_expenses()[1].id]
+    assert edited.description == expected_description
+    assert edited.amount == expected_amount
+    assert edited.category == expected_category
+    assert tracker.list_expenses() == [edited, second]
 
-    edited = tracker.edit_expense(first.id, amount="12.50", category=" travel ")
-    assert (edited.amount, edited.category) == (Decimal("12.50"), "Travel")
+
+def test_edit_expense_updates_multiple_fields_and_preserves_other_expenses(tmp_path):
+    path = tmp_path / "expenses.json"
+    tracker = ExpenseTracker(path)
+    first = tracker.add_expense("Lunch", "10", "Food")
+    second = tracker.add_expense("Train", "5", "Shopping")
+
+    edited = tracker.edit_expense(
+        first.id, description="Dinner", amount="12.50", category=" travel "
+    )
+    assert edited.id == first.id
+    assert (edited.description, edited.amount, edited.category) == (
+        "Dinner",
+        Decimal("12.50"),
+        "Travel",
+    )
+    assert tracker.list_expenses() == [edited, second]
+
     reloaded = ExpenseTracker(path)
+    assert reloaded.list_expenses() == [edited, second]
     assert reloaded.total() == Decimal("17.50")
     assert reloaded.total("TRAVEL") == Decimal("12.50")
 
